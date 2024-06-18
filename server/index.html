@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <button onclick="handleClick()">Get post</button>
+    <buttono onclick="handleClick1()">send post</button>
+    <script>
+      function handleClick() {
+        console.log("clicked");
+        fetch("http://localhost:8080/feed/posts")
+          .then((res) => {
+            const ran = res.json();
+            console.log(ran);
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      }
+      function handleClick1() {
+        console.log("clicked");
+        fetch("http://localhost:8080/feed/post",{method:'POST',body:JSON.stringify({title:'Book',content:'random'}),headers:{
+            'Content-Type':'application/json'
+        }})
+          .then((res) => {
+            const ran = res.json();
+            console.log(ran);
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      }
+    </script>
+  </body>
+</html>
