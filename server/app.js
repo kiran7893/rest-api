@@ -1,12 +1,17 @@
 const path = require("path");
+const { v4: uuidv4 } = require("uuid");
 
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const multer = require("multer");
+const dotenv = require("dotenv");
+dotenv.config();
 
 const feedRoutes = require("./routes/feed");
 const authRoutes = require("./routes/auth");
+const { Socket } = require("net");
+const { log } = require("console");
 
 const app = express();
 
@@ -15,7 +20,7 @@ const fileStorage = multer.diskStorage({
     cb(null, "images");
   },
   filename: (req, file, cb) => {
-    cb(null, new Date().toISOString() + "-" + file.originalname);
+    cb(null, uuidv4());
   },
 });
 
@@ -59,9 +64,9 @@ app.use((error, req, res, next) => {
   res.status(status).json({ message: message, data: data });
 });
 
-const uri =
-  "mongodb+srv://myadaramsaikiran:va4Xqw1mc1gk5UiW@cluster0.le6hqox.mongodb.net/messages?retryWrites=true&w=majority&appName=Cluster0";
+const uri = process.env.CONNECTION;
 
+const PORT = process.env.PORT;
 // Connect to MongoDB Atlas
 mongoose
   .connect(uri, {
@@ -73,8 +78,12 @@ mongoose
     console.log("Connected to MongoDB Atlas");
 
     // Start the server
-    app.listen(8080, () => {
+    const server = app.listen(PORT, () => {
       console.log("Server is running on port 8080");
+    });
+    const io = require("./socket").init(server);
+    io.on("connection", (socket) => {
+      console.log("Client Connected");
     });
   })
   .catch((err) => {
